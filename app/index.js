@@ -7,6 +7,8 @@ app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(express.static('public'))
+// Connectio to db
+require("./config/db")
 // Route
 app.get("/", (req, res) => {
   res.send("Hello word")
