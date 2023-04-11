@@ -1,6 +1,10 @@
 const db = require('../models')
 const bcrypt = require('bcryptjs')
 
+const { hashPassword, comparePassword } = require('../functions/password')
+const { tokenGenerator, tokenVerify } = require('../functions/token')
+const saltRounds = 10
+
 // Create Main Model
 const User = db.user
 
@@ -17,12 +21,12 @@ module.exports = {
             }
             // Find user
             const user = await User.findOne({ email: body.email })
-            if (!user || !(await bcrypt.compare(body.password, user.password))) {
+            if (!user || !(await comparePassword(body.password, user.password))) {
                 error.message = "Email or password is incorect";
                 return next(error);
             }
             // Check user verification
-            if (!user.verification) {
+            if (!user.verification_email) {
                 error.message = "Please verify you email first";
                 error.status = 401;
                 return next(error);
@@ -46,42 +50,50 @@ module.exports = {
             // Response
             res.json({
                 success: true,
+                message: "Successfully",
+                role: user.role
             });
         }
         catch (error) {
             next(error)
         }
     },
+
     Register: async (req, res, next) => {
-        // const { body } = req
-        // let error = new Error();
-        // // Validation data
-        // if (!body.username || !body.email || !body.password || body.password != body.cofirm_password) {
-        //     error.message = "Fill the all fields to register"
-        //     error.status = 400;
-        //     return next(error);
-        // }
+        const { body } = req
+        let error = new Error();
+        // Validation data
+        if (!body.first_name || !body.last_name || !body.email || !body.password) {
+            error.message = "Fill the all fields to register"
+            error.status = 400;
+            return next(error);
+        }
+        if (body.password != body.cofirm_password) {
+            error.message = "Confirm your password"
+            error.status = 400;
+            return next(error);
+        }
         // Find user
-        // const findEmail = await User.findOne({ email: body.email });
+        const findEmail = await User.findOne({ email: body.email });
+        if (findEmail) {
+            error.message = "Account already exist";
+            return next(error);
+        }
+        // Hashing password
+        const password_hash = await hashPassword(body.password);
         // Create user
-
-        // Send email
-
-        // const findEmail = await User.findOne({ email: body.email });
-        // if (findEmail) throw Error("Email already exist");
-        // const hash = await bcrypt.hash(body.password, saltRounds);
-        // const clientRole = await Role.findOne({ name: "client" });
-        // const user = await User.create({
-        //     ...body,
-        //     password: hash,
-        //     roles: clientRole._id,
-        //     verification: false,
-        //     status: true,
-        // });
-        // if (user) {
-        //     mailer.main("register", user);
-        //     res.json({ message: "Successfully, Check your email to active your account", email: body.email, password: body.password });
-        // }
-        // if (!user) throw Error("User not created try again");
+        const user = await User.create({
+            ...body,
+            password: password_hash,
+            createdAt: new Date(),
+        });
+        if (!user) {
+            next(error)
+        }
+        // Response
+        res.json({
+            success: true,
+            message: "Successfully, Check your email to active your account",
+        });
     }
 }
