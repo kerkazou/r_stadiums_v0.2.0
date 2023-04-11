@@ -123,7 +123,6 @@ module.exports = {
         res.json({
             success: true,
             message: "Successfully, Check your email to reset your password",
-            _token
         });
     },
 
