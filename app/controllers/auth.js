@@ -95,5 +95,43 @@ module.exports = {
             success: true,
             message: "Successfully, Check your email to active your account",
         });
+    },
+
+    ForgetPassword: async (req, res, next) => {
+        const { body } = req
+        let error = new Error();
+        // Validation data
+        if (!body.email) {
+            error.message = "invalid credentials"
+            error.status = 400;
+            return next(error);
+        }
+        // Find user
+        const user = await User.findOne({ email: body.email });
+        if (!user) {
+            error.message = "Account not found";
+            return next(error);
+        }
+        // Create token
+        const _token = await tokenGenerator(
+            { id: user._id, email: user.email },
+            "2d"
+        );
+        // Send email
+
+        // Response
+        res.json({
+            success: true,
+            message: "Successfully, Check your email to reset your password",
+            _token
+        });
+    },
+
+    Logout: async (req, res, next) => {
+        res.clearCookie("token");
+        res.json({
+            success: true,
+            message: "Successfully",
+        });
     }
 }
