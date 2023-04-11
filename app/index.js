@@ -10,12 +10,14 @@ app.use(express.static('public'))
 // Connectio to db
 require("./config/db")
 // Route
-app.get("/", (req, res) => {
-  res.send("Hello word")
-})
+const auth = require("./routes/auth")
+app.use("/auth", auth)
 app.all("*", (req, res) => {
   res.send("Page not found")
 })
+// Error handler
+const errorHandler = require("./middlewares/errorHandler")
+app.use(errorHandler)
 // Port
 app.listen(process.env.PORT || 2001, () =>
   console.log(`Server running on http://localhost:${process.env.PORT}`)
