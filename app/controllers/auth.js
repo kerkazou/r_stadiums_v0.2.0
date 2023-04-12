@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs')
 
 const { hashPassword, comparePassword } = require('../functions/password')
 const { tokenGenerator, tokenVerify } = require('../functions/token')
+const sendEmail = require('../middlewares/mailer')
 const saltRounds = 10
 
 // Create Main Model
@@ -90,10 +91,47 @@ module.exports = {
         if (!user) {
             next(error)
         }
+        // Create token
+        const _token = await tokenGenerator(
+            { id: user._id, email: user.email },
+            "1d"
+        );
+        // Send email
+        sendEmail('register', user, _token)
         // Response
         res.json({
             success: true,
             message: "Successfully, Check your email to active your account",
+        });
+    },
+
+    VerificationEmail: async (req, res, next) => {
+        const { token } = req.params
+        let error = new Error();
+        if (!token) {
+            error.message = "Invalid token"
+            error.status = 400;
+            return next(error);
+        }
+        // Verify token
+        const user = await tokenVerify(token);
+        if (!user) {
+            error.message = "Invalid token"
+            error.status = 400;
+            return next(error);
+        }
+        // Update user
+        const update = await User.updateOne(
+            { _id: user.id },
+            { verification_email: true }
+        );
+        if (!update) {
+            next(error)
+        }
+        // Response
+        res.json({
+            success: true,
+            message: "Successfully",
         });
     },
 
