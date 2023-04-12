@@ -156,7 +156,7 @@ module.exports = {
             "2d"
         );
         // Send email
-
+        sendEmail('forget-password', user, _token)
         // Response
         res.json({
             success: true,
