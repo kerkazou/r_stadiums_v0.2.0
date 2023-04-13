@@ -129,10 +129,7 @@ module.exports = {
             next(error)
         }
         // Response
-        res.json({
-            success: true,
-            message: "Successfully",
-        });
+        res.redirect(process.env.URL_FRONT + '/auth/login');
     },
 
     ForgetPassword: async (req, res, next) => {

@@ -49,6 +49,7 @@ const sendEmail = async (method, user, token) => {
         if (error) {
             console.log(error);
         }
+        console.log("Message sent: %s", info.messageId);
     });
 };
 
