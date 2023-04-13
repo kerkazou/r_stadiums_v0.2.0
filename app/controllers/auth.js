@@ -44,7 +44,7 @@ module.exports = {
             );
             // Set cookie
             res.cookie("token", _token, {
-                httpOnly: true,
+                httpOnly: false,
                 secure: process.env.NODE_ENV,
                 maxAge: 1000 * 60 * 60 * 24 * 2,
             });
@@ -52,7 +52,9 @@ module.exports = {
             res.json({
                 success: true,
                 message: "Successfully",
-                role: user.role
+                user: user.first_name + ' ' + user.last_name,
+                role: user.role,
+                _token
             });
         }
         catch (error) {

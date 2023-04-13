@@ -1,14 +1,20 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Link } from "react-router-dom";
 import { Form, Button } from 'react-bootstrap';
 import Image1 from '../../assets/images/image1.png'
 import NavBarAuth from "../../components/NavBarAuth";
 import { ForgetPasswordApi } from "../../services/auth.services";
+import { useSelector } from "react-redux";
 
 const ForgotPassword = () => {
     const [data, setData] = useState({ email: '' })
     const [error, setError] = useState('')
+    const IsLogin = useSelector(state => state.auth.IsLogin)
+
+    useEffect(() => {
+        if (IsLogin) navigate('/home')
+    }, [])
 
     const handleChange = (e) => {
         setData({ ...data, [e.target.name]: e.target.value })

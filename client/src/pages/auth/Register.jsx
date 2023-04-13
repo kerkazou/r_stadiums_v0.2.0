@@ -1,15 +1,21 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Link, useNavigate } from "react-router-dom";
 import { Form, Button } from 'react-bootstrap';
 import Image1 from '../../assets/images/image1.png'
 import NavBarAuth from "../../components/NavBarAuth";
 import { RegisterApi } from "../../services/auth.services";
+import { useSelector } from "react-redux";
 
 const Register = () => {
     const [data, setData] = useState({ first_name: '', last_name: '', email: '', password: '', cofirm_password: '' })
     const [error, setError] = useState('')
     const navigate = useNavigate()
+    const IsLogin = useSelector(state => state.auth.IsLogin)
+
+    useEffect(() => {
+        if (IsLogin) navigate('/home')
+    }, [])
 
     const handleChange = (e) => {
         setData({ ...data, [e.target.name]: e.target.value })

@@ -12,6 +12,8 @@ require("./config/db")
 // Route
 const auth = require("./routes/auth")
 app.use("/auth", auth)
+// const sports_category = require("./routes/sports_category")
+// app.use("/sports_category", sports_category)
 app.all("*", (req, res) => {
   res.send("Page not found")
 })

@@ -1,15 +1,23 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Link, useNavigate } from "react-router-dom";
 import { Form, Button } from 'react-bootstrap';
 import Image1 from '../../assets/images/image1.png'
 import NavBarAuth from "../../components/NavBarAuth";
 import { LoginApi } from "../../services/auth.services";
+import { LOGIN } from '../../redux/counterSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
 const Login = () => {
     const [data, setData] = useState({ email: '', password: '' })
     const [error, setError] = useState('')
+    const dispatch = useDispatch()
     const navigate = useNavigate()
+    const IsLogin = useSelector(state => state.auth.IsLogin)
+
+    useEffect(() => {
+        if (IsLogin) navigate('/home')
+    }, [])
 
     const handleChange = (e) => {
         setData({ ...data, [e.target.name]: e.target.value })
@@ -17,9 +25,27 @@ const Login = () => {
     const onSubmit = async () => {
         try {
             const res = await LoginApi(data)
-            if (res.data.role === 'Manager') console.log(res.data.role)
-            else if (res.data.role === 'PitchOwner') console.log(res.data.role)
-            else if (res.data.role === 'Player') navigate('/home')
+            if (res.data.role === 'Manager') {
+                localStorage.setItem('token', res.data._token)
+                localStorage.setItem('user', res.data.user)
+                localStorage.setItem('role', res.data.role)
+                dispatch(LOGIN(res.data))
+                navigate('/admin')
+            }
+            else if (res.data.role === 'PitchOwner') {
+                localStorage.setItem('token', res.data._token)
+                localStorage.setItem('user', res.data.user)
+                localStorage.setItem('role', res.data.role)
+                dispatch(LOGIN(res.data))
+                navigate('/dashboard')
+            }
+            else if (res.data.role === 'Player') {
+                localStorage.setItem('token', res.data._token)
+                localStorage.setItem('user', res.data.user)
+                localStorage.setItem('role', res.data.role)
+                dispatch(LOGIN(res.data))
+                navigate('/home')
+            }
             else console.log('Something went wrong')
         } catch (e) {
             setError(e?.response?.data?.message || 'Something went wrong')
